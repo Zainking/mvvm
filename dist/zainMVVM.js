@@ -70,31 +70,34 @@
 "use strict";
 
 
-__webpack_require__(1);
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
 
-/***/ }),
-/* 1 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var _observer = __webpack_require__(2);
+var _observer = __webpack_require__(1);
 
 var _observer2 = _interopRequireDefault(_observer);
 
-var _watcher = __webpack_require__(3);
+var _watcher = __webpack_require__(2);
 
 var _watcher2 = _interopRequireDefault(_watcher);
 
-var _compile = __webpack_require__(4);
+var _compile = __webpack_require__(3);
 
 var _compile2 = _interopRequireDefault(_compile);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+var MVVM = 'hello';
+
+if (window) {
+  window.MVVM = MVVM;
+}
+
+exports.default = MVVM;
+
 /***/ }),
-/* 2 */
+/* 1 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -113,7 +116,7 @@ Observer.prototype.sayName = function () {
 exports.default = Observer;
 
 /***/ }),
-/* 3 */
+/* 2 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -132,7 +135,7 @@ Watcher.prototype.sayName = function () {
 exports.default = Watcher;
 
 /***/ }),
-/* 4 */
+/* 3 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
