@@ -1,0 +1,1 @@
+import './mvvm.js';
