@@ -1,4 +1,5 @@
 import Subject from './subject.js';
+
 let currentObserver = null
 
 function observe(data) {
@@ -10,16 +11,13 @@ function observe(data) {
       enumerable: true,
       configurable: true,
       get: function() {
-        console.log(`get ${key}: ${val}`)
         if(currentObserver){
-          console.log('has currentObserver')
           currentObserver.subscribeTo(subject)
         }
         return val
       },
       set: function(newVal) {
         val = newVal
-        console.log('start notify...')
         subject.notify()
       }
     })
@@ -47,7 +45,6 @@ class Observer{
   }
   subscribeTo(subject) {
     if(!this.subjects[subject.id]){
-      console.log('subscribeTo.. ', subject)
        subject.addObserver(this)
        this.subjects[subject.id] = subject
     }

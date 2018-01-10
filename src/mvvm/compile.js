@@ -2,7 +2,7 @@ import { Observer, observe } from './observer.js';
 
 class Compile {
   constructor(vm){
-    
+
     observe(vm.$data)
 
     this.vm = vm
@@ -23,17 +23,22 @@ class Compile {
     }
   }
   compileText(node){
-    let reg = /{{(.+?)}}/g
-    let match
-    console.log(node)
-    while(match = reg.exec(node.nodeValue)){
-      let raw = match[0]
-      let key = match[1].trim()
-      node.nodeValue = node.nodeValue.replace(raw, this.vm[key])
-      new Observer(this.vm, key, function(val, oldVal){
+    let reg = /{{([a-zA-Z0-9_$.\s]+)}}/g
+    let _this = this;
+    node.nodeValue = node.nodeValue.replace(reg, function (match, key, offset, string) {
+      key = key.trim();
+      let father = _this.vm;
+      let stack = key.split('.');
+      key = stack.shift();
+      while (stack.length) {
+        father = father[key];
+        key = stack.shift();
+      }
+      new Observer(father, key, function(val, oldVal){
         node.nodeValue = node.nodeValue.replace(oldVal, val)
       })
-    }
+      return father[key] || match;
+    });
   }
 
   //处理指令
@@ -66,11 +71,11 @@ class Compile {
 
   //判断属性名是否是指令
   isModelDirective(attrName){
-     return attrName === 'v-model'
+     return attrName === 'z-model'
   }
 
   isEventDirective(attrName){
-    return attrName.indexOf('v-on') === 0
+    return attrName.indexOf('z-on') === 0
   }
 
 }

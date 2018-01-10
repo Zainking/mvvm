@@ -161,6 +161,7 @@ var Compile = function () {
     _classCallCheck(this, Compile);
 
     (0, _observer.observe)(vm.$data);
+
     this.vm = vm;
     this.node = vm.$el;
     this.compile();
@@ -174,12 +175,12 @@ var Compile = function () {
   }, {
     key: 'traverse',
     value: function traverse(node) {
-      var _this = this;
+      var _this2 = this;
 
       if (node.nodeType === 1) {
         this.compileNode(node); //解析节点上的v-bind 属性
         node.childNodes.forEach(function (childNode) {
-          _this.traverse(childNode);
+          _this2.traverse(childNode);
         });
       } else if (node.nodeType === 3) {
         //处理文本
@@ -189,17 +190,22 @@ var Compile = function () {
   }, {
     key: 'compileText',
     value: function compileText(node) {
-      var reg = /{{(.+?)}}/g;
-      var match = void 0;
-      console.log(node);
-      while (match = reg.exec(node.nodeValue)) {
-        var raw = match[0];
-        var key = match[1].trim();
-        node.nodeValue = node.nodeValue.replace(raw, this.vm[key]);
-        new _observer.Observer(this.vm, key, function (val, oldVal) {
+      var reg = /{{([a-zA-Z0-9_$.\s]+)}}/g;
+      var _this = this;
+      node.nodeValue = node.nodeValue.replace(reg, function (match, key, offset, string) {
+        key = key.trim();
+        var father = _this.vm;
+        var stack = key.split('.');
+        key = stack.shift();
+        while (stack.length) {
+          father = father[key];
+          key = stack.shift();
+        }
+        new _observer.Observer(father, key, function (val, oldVal) {
           node.nodeValue = node.nodeValue.replace(oldVal, val);
         });
-      }
+        return father[key] || match;
+      });
     }
 
     //处理指令
@@ -207,22 +213,22 @@ var Compile = function () {
   }, {
     key: 'compileNode',
     value: function compileNode(node) {
-      var _this2 = this;
+      var _this3 = this;
 
       var attrs = [].concat(_toConsumableArray(node.attributes)); //类数组对象转换成数组，也可用其他方法
       attrs.forEach(function (attr) {
         //attr 是个对象，attr.name 是属性的名字如 v-model， attr.value 是对应的值，如 name
-        if (_this2.isModelDirective(attr.name)) {
-          _this2.bindModel(node, attr);
-        } else if (_this2.isEventDirective(attr.name)) {
-          _this2.bindEventHander(node, attr);
+        if (_this3.isModelDirective(attr.name)) {
+          _this3.bindModel(node, attr);
+        } else if (_this3.isEventDirective(attr.name)) {
+          _this3.bindEventHander(node, attr);
         }
       });
     }
   }, {
     key: 'bindModel',
     value: function bindModel(node, attr) {
-      var _this3 = this;
+      var _this4 = this;
 
       var key = attr.value; //attr.value === 'name'
       node.value = this.vm[key];
@@ -230,7 +236,7 @@ var Compile = function () {
         node.value = newVal;
       });
       node.oninput = function (e) {
-        _this3.vm[key] = e.target.value; //因为是箭头函数，所以这里的 this 是 compile 对象
+        _this4.vm[key] = e.target.value; //因为是箭头函数，所以这里的 this 是 compile 对象
       };
     }
   }, {
@@ -247,12 +253,12 @@ var Compile = function () {
   }, {
     key: 'isModelDirective',
     value: function isModelDirective(attrName) {
-      return attrName === 'v-model';
+      return attrName === 'z-model';
     }
   }, {
     key: 'isEventDirective',
     value: function isEventDirective(attrName) {
-      return attrName.indexOf('v-on') === 0;
+      return attrName.indexOf('z-on') === 0;
     }
   }]);
 
@@ -297,16 +303,13 @@ function observe(data) {
       enumerable: true,
       configurable: true,
       get: function get() {
-        console.log('get ' + key + ': ' + val);
         if (currentObserver) {
-          console.log('has currentObserver');
           currentObserver.subscribeTo(subject);
         }
         return val;
       },
       set: function set(newVal) {
         val = newVal;
-        console.log('start notify...');
         subject.notify();
       }
     });
@@ -345,7 +348,6 @@ var Observer = function () {
     key: 'subscribeTo',
     value: function subscribeTo(subject) {
       if (!this.subjects[subject.id]) {
-        console.log('subscribeTo.. ', subject);
         subject.addObserver(this);
         this.subjects[subject.id] = subject;
       }

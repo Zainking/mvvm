@@ -4,20 +4,42 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>Document</title>
+  <title>Example</title>
+  <style>
+    .container{
+      width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+      text-align: center;
+    }
+    .container textarea{
+      border: 1px solid #888;
+      min-height: 100px;
+      min-width: 200px;
+      resize:none;
+    }
+  </style>
 </head>
 <body>
-  <div id='main'>
-    <input type="text" v-model="name">
-    <br>
-    {{name}}
+  <div class="container">
+    <div id='main'>
+      <h2>双向数据绑定</h2>
+      <textarea z-model="name"></textarea>
+      <br>
+      {{name}}
+    </div>
   </div>
   <script src='../dist/zainMVVM.js'></script>
   <script>
     new MVVM({
       el: '#main',
       data: {
-        name:'zain'
+        name:'zain',
+        info: {
+          age: 22,
+          sex: 'male'
+        },
+        sex: 'male'
       }
     });
   </script>
