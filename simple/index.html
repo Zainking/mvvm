@@ -7,6 +7,15 @@
   <title>Document</title>
 </head>
 <body>
-<script src='../dist/zainMVVM.js'></script>
+  <div id='main'>{{name}}</div>
+  <script src='../dist/zainMVVM.js'></script>
+  <script>
+    new MVVM({
+      el: '#main',
+      data: {
+        name:'zain'
+      }
+    });
+  </script>
 </body>
 </html>
