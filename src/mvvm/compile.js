@@ -1,7 +1,10 @@
-import { Observer } from './observer.js';
+import { Observer, observe } from './observer.js';
 
 class Compile {
   constructor(vm){
+    
+    observe(vm.$data)
+
     this.vm = vm
     this.node = vm.$el
     this.compile()

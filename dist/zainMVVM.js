@@ -60,7 +60,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 1);
+/******/ 	return __webpack_require__(__webpack_require__.s = 0);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -73,117 +73,10 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.observe = exports.Observer = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
-
-var _subject = __webpack_require__(2);
-
-var _subject2 = _interopRequireDefault(_subject);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var currentObserver = null;
-
-function observe(data) {
-  if (!data || (typeof data === 'undefined' ? 'undefined' : _typeof(data)) !== 'object') return;
-
-  var _loop = function _loop() {
-    var val = data[key];
-    var subject = new _subject2.default();
-    Object.defineProperty(data, key, {
-      enumerable: true,
-      configurable: true,
-      get: function get() {
-        console.log('get ' + key + ': ' + val);
-        if (currentObserver) {
-          console.log('has currentObserver');
-          currentObserver.subscribeTo(subject);
-        }
-        return val;
-      },
-      set: function set(newVal) {
-        val = newVal;
-        console.log('start notify...');
-        subject.notify();
-      }
-    });
-    if ((typeof val === 'undefined' ? 'undefined' : _typeof(val)) === 'object') {
-      observe(val);
-    }
-  };
-
-  for (var key in data) {
-    _loop();
-  }
-}
-
-var Observer = function () {
-  function Observer(vm, key, cb) {
-    _classCallCheck(this, Observer);
-
-    this.subjects = {};
-    this.vm = vm;
-    this.key = key;
-    this.cb = cb;
-    this.value = this.getValue();
-  }
-
-  _createClass(Observer, [{
-    key: 'update',
-    value: function update() {
-      var oldVal = this.value;
-      var value = this.getValue();
-      if (value !== oldVal) {
-        this.value = value;
-        this.cb.bind(this.vm)(value, oldVal);
-      }
-    }
-  }, {
-    key: 'subscribeTo',
-    value: function subscribeTo(subject) {
-      if (!this.subjects[subject.id]) {
-        console.log('subscribeTo.. ', subject);
-        subject.addObserver(this);
-        this.subjects[subject.id] = subject;
-      }
-    }
-  }, {
-    key: 'getValue',
-    value: function getValue() {
-      currentObserver = this;
-      var value = this.vm[this.key]; //等同于 this.vm.$data[this.key]
-      currentObserver = null;
-      return value;
-    }
-  }]);
-
-  return Observer;
-}();
-
-exports.Observer = Observer;
-exports.observe = observe;
-
-/***/ }),
-/* 1 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-var _observer = __webpack_require__(0);
-
-var _compile = __webpack_require__(3);
+var _compile = __webpack_require__(1);
 
 var _compile2 = _interopRequireDefault(_compile);
 
@@ -196,7 +89,6 @@ var mvvm = function () {
     _classCallCheck(this, mvvm);
 
     this.init(opts);
-    (0, _observer.observe)(this.$data);
     new _compile2.default(this);
   }
 
@@ -246,7 +138,7 @@ if (window) {
 exports.default = mvvm;
 
 /***/ }),
-/* 2 */
+/* 1 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -258,59 +150,7 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var id = 0;
-
-var Subject = function () {
-  function Subject() {
-    _classCallCheck(this, Subject);
-
-    this.id = id++;
-    this.observers = [];
-  }
-
-  _createClass(Subject, [{
-    key: "addObserver",
-    value: function addObserver(observer) {
-      this.observers.push(observer);
-    }
-  }, {
-    key: "removeObserver",
-    value: function removeObserver(observer) {
-      var index = this.observers.indexOf(observer);
-      if (index > -1) {
-        this.observers.splice(index, 1);
-      }
-    }
-  }, {
-    key: "notify",
-    value: function notify() {
-      this.observers.forEach(function (observer) {
-        observer.update();
-      });
-    }
-  }]);
-
-  return Subject;
-}();
-
-exports.default = Subject;
-
-/***/ }),
-/* 3 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-var _observer = __webpack_require__(0);
+var _observer = __webpack_require__(2);
 
 function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
@@ -320,6 +160,7 @@ var Compile = function () {
   function Compile(vm) {
     _classCallCheck(this, Compile);
 
+    (0, _observer.observe)(vm.$data);
     this.vm = vm;
     this.node = vm.$el;
     this.compile();
@@ -419,6 +260,163 @@ var Compile = function () {
 }();
 
 exports.default = Compile;
+
+/***/ }),
+/* 2 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.observe = exports.Observer = undefined;
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
+var _subject = __webpack_require__(3);
+
+var _subject2 = _interopRequireDefault(_subject);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var currentObserver = null;
+
+function observe(data) {
+  if (!data || (typeof data === 'undefined' ? 'undefined' : _typeof(data)) !== 'object') return;
+
+  var _loop = function _loop() {
+    var val = data[key];
+    var subject = new _subject2.default();
+    Object.defineProperty(data, key, {
+      enumerable: true,
+      configurable: true,
+      get: function get() {
+        console.log('get ' + key + ': ' + val);
+        if (currentObserver) {
+          console.log('has currentObserver');
+          currentObserver.subscribeTo(subject);
+        }
+        return val;
+      },
+      set: function set(newVal) {
+        val = newVal;
+        console.log('start notify...');
+        subject.notify();
+      }
+    });
+    if ((typeof val === 'undefined' ? 'undefined' : _typeof(val)) === 'object') {
+      observe(val);
+    }
+  };
+
+  for (var key in data) {
+    _loop();
+  }
+}
+
+var Observer = function () {
+  function Observer(vm, key, cb) {
+    _classCallCheck(this, Observer);
+
+    this.subjects = {};
+    this.vm = vm;
+    this.key = key;
+    this.cb = cb;
+    this.value = this.getValue();
+  }
+
+  _createClass(Observer, [{
+    key: 'update',
+    value: function update() {
+      var oldVal = this.value;
+      var value = this.getValue();
+      if (value !== oldVal) {
+        this.value = value;
+        this.cb.bind(this.vm)(value, oldVal);
+      }
+    }
+  }, {
+    key: 'subscribeTo',
+    value: function subscribeTo(subject) {
+      if (!this.subjects[subject.id]) {
+        console.log('subscribeTo.. ', subject);
+        subject.addObserver(this);
+        this.subjects[subject.id] = subject;
+      }
+    }
+  }, {
+    key: 'getValue',
+    value: function getValue() {
+      currentObserver = this;
+      var value = this.vm[this.key]; //等同于 this.vm.$data[this.key]
+      currentObserver = null;
+      return value;
+    }
+  }]);
+
+  return Observer;
+}();
+
+exports.Observer = Observer;
+exports.observe = observe;
+
+/***/ }),
+/* 3 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var id = 0;
+
+var Subject = function () {
+  function Subject() {
+    _classCallCheck(this, Subject);
+
+    this.id = id++;
+    this.observers = [];
+  }
+
+  _createClass(Subject, [{
+    key: "addObserver",
+    value: function addObserver(observer) {
+      this.observers.push(observer);
+    }
+  }, {
+    key: "removeObserver",
+    value: function removeObserver(observer) {
+      var index = this.observers.indexOf(observer);
+      if (index > -1) {
+        this.observers.splice(index, 1);
+      }
+    }
+  }, {
+    key: "notify",
+    value: function notify() {
+      this.observers.forEach(function (observer) {
+        observer.update();
+      });
+    }
+  }]);
+
+  return Subject;
+}();
+
+exports.default = Subject;
 
 /***/ })
 /******/ ]);

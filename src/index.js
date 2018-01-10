@@ -1,10 +1,8 @@
-import { observe } from './mvvm/observer.js';
 import Compile from './mvvm/compile.js';
 
 class mvvm {
   constructor(opts) {
     this.init(opts)
-    observe(this.$data)
     new Compile(this)
   }
   init(opts){
